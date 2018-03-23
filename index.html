@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Hello Socket</title>
+</head>
+<body>
+	<h1>Hello SocketIO</h1>
+	<div id="app">
+		<ul>
+			<li v-for="m in messages">{{ m }}</li>
+		</ul>
+		<input @keyup.enter="send" v-model="message" type="text" />
+		<button @click="send">Send</button>
+	</div>
+	
+
+	<script type="text/javascript" src="/js/socket.io.slim.js"></script>
+	<script type="text/javascript" src="/js/vue.min.js"></script>
+
+	<script>
+		var socket = io();
+		
+		let app = new Vue({
+			el: '#app',
+			data: {
+				message: '',
+				messages: []
+			},
+			methods: {
+				send: function(e) {
+					socket.emit('chat.message', this.message);
+					this.message = '';
+				}
+			}
+		});
+
+		socket.on('chat.message', function (message) {
+			console.log('receive ' + message);
+			app.messages.push(message);
+		});
+	</script>
+</body>
+</html>

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Hello Socket</title>
+	<link rel="stylesheet" type="text/css" href="/css/bulma.css">
+	<style type="text/css">
+		p.title.time {
+			font-size: 12em;
+		}
+	</style>
+</head>
+<body>	
+	<div id="app">
+		<section class="hero is-primary is-bold">
+			<div class="hero-head">
+				<div class="container">
+					<h1 class="title">
+						http://elab.cpe.ku.ac.th
+					</h1>
+					<h2 class="subtitle">
+						01418112/01418140
+					</h2>
+				</div>
+			</div>
+		</section>
+
+		<div class="container">
+		<div class="tile is-ancestor">
+		  <div class="tile is-parent">
+		    <article class="tile is-child box">
+		      <p class="title time has-text-centered">{{ timeHours }}</p>
+		      <p class="subtitle has-text-right">Hours</p>
+		    </article>
+		  </div>
+		  <div class="tile is-parent">
+		    <article class="tile is-child box">
+		      <p class="title time has-text-centered">{{ timeMinutes }}</p>
+		      <p class="subtitle has-text-right">Minutes</p>
+		    </article>
+		  </div>
+		  <div class="tile is-parent">
+		    <article class="tile is-child box">
+		      <p class="title time has-text-centered">{{ timeSeconds }}</p>
+		      <p class="subtitle has-text-right">Seconds</p>
+		    </article>
+		  </div>
+		</div>
+		</div>
+
+		<div class="container">
+			<div class="content has-text-centered">
+				<button @click="fetch" class="button is-info">Refresh Time from Server</button>
+			</div>
+		</div>
+
+	</div>
+	
+
+	<script type="text/javascript" src="/js/socket.io.slim.js"></script>
+	<script type="text/javascript" src="/js/vue.min.js"></script>
+
+	<script>
+		var socket = io();
+		
+		let app = new Vue({
+			el: '#app',
+			data: {
+				time: 0, 
+				isStart: false,
+				loop: false,
+				interval: null
+			},
+			computed: {
+				timeleft: function () {
+					return this.time;
+				},
+				timeHours: function () {
+					let h = Math.floor(this.time / 3600);
+					
+					return this.pad(h);
+				},
+				timeMinutes: function () {
+					let m = Math.floor(this.time % 3600 / 60);
+					
+					return this.pad(m);
+				},
+				timeSeconds: function () {
+					let s = Math.floor(this.time % 60);
+					
+					return this.pad(s);
+				}
+			},
+			methods: {
+				fetch: function () {
+					socket.emit('time.fetch');
+				},
+				down: function () {
+					var self = this;
+					if (!this.loop) {
+						this.loop = true;
+						this.interval = setInterval(function () {
+							if (self.isStart && self.time > 0) {
+								self.time -= 1;
+							} else {
+								clearInterval(this)
+							}
+						}, 1000);
+					}
+				},
+				pad: function (number) {
+					if (('' + number).length < 2) {
+						return '0' + number;
+					} else {
+						return number;
+					}
+				}
+			}
+		});
+
+		socket.on('time.left', function (time, isStart) {
+			app.time = time;
+			app.isStart = isStart;
+			if (isStart && !app.interval) {
+				app.down();
+			}
+		});
+
+		socket.on('time.start', function (time) {
+			if (!app.isStart) {
+				app.down();
+				app.isStart = true;
+			}
+		});
+
+		socket.on('time.reset', function () {
+			app.time = 0;
+			app.isStart = false;
+			app.loop = false;
+			clearInterval(app.interval);
+		});
+
+		socket.on('time.resume', function () {
+			if (app.interval) {
+				app.isStart = true;
+			}
+		});
+
+		socket.on('time.pause', function () {
+			if (app.interval) {
+				app.isStart = false;
+			}
+		});
+	</script>
+</body>
+</html>
