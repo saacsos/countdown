@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Hello Socket</title>
+	<link rel="stylesheet" type="text/css" href="/css/bulma.css">
+</head>
+<body>	
+	<div id="app">
+		<section class="section">
+			<div class="container">
+				<h1 class="title">Countdown Admin Setting</h1>
+			</div>
+		</section>
+		{{ timeleft }}
+		<p>{{ timeHours }} : {{ timeMinutes }} : {{ timeSeconds }}</p>
+	</div>
+
+	<div>
+		javascript console command
+		<p>
+			<code>app.set(second)</code>
+			Set Countdown time in second Ex. <code>app.set(3 * 60 * 60)</code> for 3 hours
+			**Use only 1 time
+		</p>
+		<p>
+			<code>app.start()</code>
+			Start Countdown
+		</p>
+		<p>
+			<code>app.fetch()</code>
+			Refresh Countdown time in subscriber screen
+		</p>
+		<p>
+			<code>app.pause()</code>
+			Pause Countdown time in subscriber screen
+		</p>
+		<p>
+			<code>app.resume()</code>
+			Resume Countdown time in subscriber screen
+		</p>
+		<p>
+			<code>app.reset()</code>
+			Reset Countdown time in subscriber screen (time = 0)
+		</p>
+	</div>
+	
+
+	<script type="text/javascript" src="/js/socket.io.slim.js"></script>
+	<script type="text/javascript" src="/js/vue.min.js"></script>
+
+	<script>
+		var socket = io();
+		
+		let app = new Vue({
+			el: '#app',
+			data: {
+				time: 0, 
+				isStart: false,
+				loop: false,
+				interval: null
+			},
+			computed: {
+				timeleft: function () {
+					return this.time;
+				},
+				timeHours: function () {
+					let h = Math.floor(this.time / 3600);
+					
+					return this.pad(h);
+				},
+				timeMinutes: function () {
+					let m = Math.floor(this.time % 3600 / 60);
+					
+					return this.pad(m);
+				},
+				timeSeconds: function () {
+					let s = Math.floor(this.time % 60);
+					
+					return this.pad(s);
+				}
+			},
+			methods: {
+				fetch: function () {
+					socket.emit('time.fetch');
+				},
+				down: function () {
+					var self = this;
+					if (!this.loop) {
+						this.loop = true;
+						this.interval = setInterval(function () {
+							if (self.isStart && self.time > 0) {
+								self.time -= 1;
+							} else {
+								clearInterval(this)
+							}
+						}, 1000);
+					}
+				},
+				set: function (minute) {
+					socket.emit('time.set', minute);
+				},
+				start: function () {
+					socket.emit('time.start');
+				},
+				pad: function (number) {
+					if (('' + number).length < 2) {
+						return '0' + number;
+					} else {
+						return number;
+					}
+				},
+				pause: function () {
+					socket.emit('time.pause');
+				},
+				resume: function () {
+					socket.emit('time.resume');
+				},
+				reset: function () {
+					socket.emit('time.reset')
+				}
+			}
+		});
+
+		socket.on('time.left', function (time, isStart) {
+			app.time = time;
+			app.isStart = isStart;
+			if (isStart && !app.interval) {
+				app.down();
+			}
+		});
+
+		socket.on('time.start', function (time) {
+			if (!app.isStart) {
+				app.down();
+				app.isStart = true;
+			}
+		});
+
+		socket.on('time.stop', function (time) {
+			if (app.isStart) {
+				app.isStart = false;
+			}
+		});
+
+		socket.on('time.reset', function () {
+			app.time = 0;
+			app.isStart = false;
+			app.loop = false;
+			clearInterval(app.interval);
+		});
+
+		socket.on('time.resume', function () {
+			if (app.interval) {
+				app.isStart = true;
+			}
+		});
+
+		socket.on('time.pause', function () {
+			if (app.interval) {
+				app.isStart = false;
+			}
+		});
+	</script>
+</body>
+</html>
