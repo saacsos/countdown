@@ -1,0 +1,17 @@
+version 2.1
+jobs:
+  build:
+    docker: 
+      - image: node:8.0
+    step:
+      - run:
+        name: "Checking Version"
+        command: |
+          node --version
+          npm --version
+      - run:
+        name: "Install npm dependencies"
+        command: npm install
+      - run:
+        name: "Start Server"
+        command: npm start 
