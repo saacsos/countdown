@@ -2,4 +2,4 @@
 
 using nodejs, expressjs, VueJS, socketio
 
-to start server: `node index.js`
+to start server: `npm start`
