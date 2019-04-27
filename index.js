@@ -5,10 +5,15 @@ var io = require('socket.io')(server);
 var countdown = 0;
 var isStart = false;
 var interval = null;
+var port = 80;
 
-server.listen(80, '0.0.0.0');
+server.listen(port, '0.0.0.0');
 
-app.use(express.static('public'))
+app.use(express.static('public'));
+
+console.log("listen on port " + port);
+console.log("for admin /countdown/admin/setting");
+console.log("for client: /");
 
 app.get('/home', function(request, response) {
 	response.sendFile(__dirname + '/index.html');
