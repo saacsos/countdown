@@ -3,7 +3,7 @@ jobs:
   build:
     docker: 
       - image: node:8.0
-    step:
+    steps:
       - run:
         name: "Checking Version"
         command: |
