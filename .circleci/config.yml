@@ -5,10 +5,11 @@ jobs:
       - image: node:8.0
     steps:
       - run:
-        name: "Checking Version"
-        command: |
-          node --version
-          npm --version
+        name: "Checking Node Version"
+        command: node --version
+      - run:
+        name: "Checking npm version"
+        command: npm --version
       - run:
         name: "Install npm dependencies"
         command: npm install
