@@ -12,7 +12,4 @@ jobs:
           command: npm --version
       - run:
           name: "Install npm dependencies"
-          command: npm install
-      - run:
-          name: "Start Server"
-          command: npm start 
+          command: npm install 
