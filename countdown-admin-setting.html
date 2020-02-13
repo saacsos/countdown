@@ -42,6 +42,22 @@
 			<code>app.reset()</code>
 			Reset Countdown time in subscriber screen (time = 0)
 		</p>
+		<p>
+			<code>app.header(message)</code>
+			Set Header Message (message = อาจจะระบุชื่อวิชา หรือวันสอบ)
+		</p>
+		<p>
+			<code>app.notice(message)</code>
+			Set Notice Message (message = 'Elab จะเปิดให้ส่งเวลา 9.15 น.')
+		</p>
+		<p>
+			<code>app.alert(message)</code>
+			Set Alert Message (message = แจ้งเตือนต่าง ๆ)
+		</p>
+		<p>
+			<code>app.alert(false)</code>
+			Close Alert Message
+		</p>
 	</div>
 	
 
@@ -116,7 +132,16 @@
 					socket.emit('time.resume');
 				},
 				reset: function () {
-					socket.emit('time.reset')
+					socket.emit('time.reset');
+				},
+				header: function (message) {
+					socket.emit('message.header', message);
+				},
+				notice: function (message) {
+					socket.emit('message.notice', message);
+				},
+				alert: function (message) {
+					socket.emit('message.alert', message);
 				}
 			}
 		});

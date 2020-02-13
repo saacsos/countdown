@@ -7,10 +7,29 @@
 		p.title.time {
 			font-size: 12em;
 		}
+
+		.alert-message {
+			z-index: 30;
+			position: absolute;
+			display: block;
+			margin: 20vh 10%;
+			text-align: center;
+			font-size: 4em;
+			width: 80%;
+		}
+		.time-box {
+			margin-top: 10px;
+		}
 	</style>
 </head>
 <body>	
 	<div id="app">
+
+		<div class="notification is-warning alert-message" v-if="alert_show">
+			<button class="delete"></button>
+			{{ alert }}
+		</div>
+
 		<section class="hero is-primary is-bold">
 			<div class="hero-head">
 				<div class="container">
@@ -18,13 +37,23 @@
 						http://elab.cpe.ku.ac.th
 					</h1>
 					<h2 class="subtitle">
-						01418112/01418140
+						{{  header }}
 					</h2>
 				</div>
 			</div>
 		</section>
 
-		<div class="container">
+		<section class="hero is-primary is-bold">
+			<div class="hero-head">
+				<div class="container has-text-centered">
+					<h1 class="title">
+						{{ notice }}
+					</h1>
+				</div>
+			</div>
+		</section>
+
+		<div class="container time-box">
 		<div class="tile is-ancestor">
 		  <div class="tile is-parent">
 		    <article class="tile is-child box">
@@ -62,7 +91,11 @@
 				time: 0, 
 				isStart: false,
 				loop: false,
-				interval: null
+				interval: null,
+				header: "01418112/01418140",
+				notice: "ยังไม่เปิดให้ส่งคำตอบในระบบ Elab",
+				alert: "",
+				alert_show: false
 			},
 			computed: {
 				timeleft: function () {
@@ -142,6 +175,23 @@
 		socket.on('time.pause', function () {
 			if (app.interval) {
 				app.isStart = false;
+			}
+		});
+
+		socket.on('message.notice', function (message) {
+			app.notice = message;
+		});
+
+		socket.on('message.header', function (message) {
+			app.header = message;
+		});
+
+		socket.on('message.alert', function (message) {
+			app.alert = message;
+			if (message) {
+				app.alert_show = true;
+			} else {
+				app.alert_show = false;
 			}
 		});
 	</script>

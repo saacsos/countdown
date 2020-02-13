@@ -87,5 +87,20 @@ io.on('connection', function(socket) {
 		io.emit('time.resume')
 	});
 
+	socket.on('message.notice', function (message) {
+		console.log('request message.notice ' + message);
+		io.emit('message.notice', message)
+	});
+
+	socket.on('message.header', function (message) {
+		console.log('request message.header ' + message);
+		io.emit('message.header', message)
+	});
+
+	socket.on('message.alert', function (message) {
+		console.log('request message.alert ' + message);
+		io.emit('message.alert', message)
+	});
+
 	
 });
