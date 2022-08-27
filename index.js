@@ -53,7 +53,7 @@ io.on('connection', function(socket) {
 			interval = setInterval(function () {
 				if (isStart && countdown > 0) {
 					countdown -= 1;
-					console.log('loop countdown left: ' + countdown);
+					console.log('countdown left: ' + countdown);
 				} else {
 					clearInterval(this);
 					console.log('clear interval');
@@ -87,5 +87,4 @@ io.on('connection', function(socket) {
 		io.emit('time.resume')
 	});
 
-	
 });
